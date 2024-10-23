@@ -5,23 +5,23 @@ import ctypes
 K = TypeVar('K')
 V = TypeVar('V')
 
+"""Node class for doubly linked list."""
 class Node(Generic[K, V]):
-    """Node class for doubly linked list."""
     def __init__(self, key: K, value: V):
         self.key = key
         self.value = value
         self.next: Optional[Node] = None
         self.prev: Optional[Node] = None
 
+# Doubly linked list implementation for collision chaining
 class DoublyLinkedList(Generic[K, V]):
-    """Doubly linked list implementation for collision chaining."""
     def __init__(self):
         self.head: Optional[Node] = None
         self.tail: Optional[Node] = None
         self.size = 0
     
+    #Inserting a new node at the end of the list
     def insert(self, key: K, value: V) -> None:
-        """Insert a new node at the end of the list."""
         new_node = Node(key, value)
         if not self.head:
             self.head = self.tail = new_node
@@ -32,7 +32,7 @@ class DoublyLinkedList(Generic[K, V]):
         self.size += 1
     
     def remove(self, key: K) -> bool:
-        """Remove a node with the given key. Returns True if found and removed."""
+        #Remove a node with the given key. Returns True if found and removed.
         current = self.head
         while current:
             if current.key == key:
@@ -52,7 +52,7 @@ class DoublyLinkedList(Generic[K, V]):
         return False
     
     def find(self, key: K) -> Optional[Node]:
-        """Find and return the node with the given key."""
+        #Find and return the node with the given key.
         current = self.head
         while current:
             if current.key == key:
@@ -60,14 +60,15 @@ class DoublyLinkedList(Generic[K, V]):
             current = current.next
         return None
     
+    
+    # Clear the entire list.
     def clear(self) -> None:
-        """Clear the entire list."""
         self.head = None
         self.tail = None
         self.size = 0
 
 class HashFunction(ABC):
-    """Abstract base class for hash functions."""
+    # Abstract base class for hash functions
     @abstractmethod
     def hash(self, key: K, table_size: int) -> int:
         pass
@@ -103,7 +104,6 @@ class CArray(Generic[K]):
         self.array[index] = value
 
 class HashTable(Generic[K, V]):
-    """Hash table implementation with collision resolution by chaining."""
     def __init__(self, initial_size: int = 8, hash_function: Optional[HashFunction] = None):
         self.size = initial_size
         self.count = 0
@@ -111,11 +111,9 @@ class HashTable(Generic[K, V]):
         self.hash_function = hash_function or MultiplicationDivisionHash()
     
     def _get_hash(self, key: K) -> int:
-        """Get hash value for a key."""
         return self.hash_function.hash(key, self.size)
     
     def _resize(self, new_size: int) -> None:
-        """Resize the hash table and rehash all elements."""
         old_table = self.table
         self.size = new_size
         self.table = CArray(new_size)
@@ -130,7 +128,7 @@ class HashTable(Generic[K, V]):
                 current = current.next
     
     def insert(self, key: K, value: V) -> None:
-        """Insert a key-value pair into the hash table."""
+
         hash_val = self._get_hash(key)
         
         # Check if key already exists
@@ -147,7 +145,7 @@ class HashTable(Generic[K, V]):
             self._resize(self.size * 2)
     
     def remove(self, key: K) -> bool:
-        """Remove a key-value pair from the hash table."""
+
         hash_val = self._get_hash(key)
         if self.table[hash_val].remove(key):
             self.count -= 1
@@ -158,7 +156,7 @@ class HashTable(Generic[K, V]):
         return False
     
     def get(self, key: K) -> Optional[V]:
-        """Get the value associated with a key."""
+
         hash_val = self._get_hash(key)
         node = self.table[hash_val].find(key)
         return node.value if node else None
@@ -179,11 +177,9 @@ if __name__ == "__main__":
     for i in range(10):
         ht.insert(i, i * 100)
     
-    # Test retrieval
     assert ht.get(5) == 500
     assert len(ht) == 10
-    
-    # Test removal
+
     assert ht.remove(5) == True
     assert ht.get(5) is None
     assert len(ht) == 9
@@ -192,7 +188,6 @@ if __name__ == "__main__":
     for i in range(10, 20):
         ht.insert(i, i * 100)
     
-    # Test contains
     assert 15 in ht
     assert 5 not in ht
     
